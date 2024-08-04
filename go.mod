@@ -1,4 +1,4 @@
-module realtime-chat-backend
+module github.com/xyugen/realtime-chat-backend
 
 go 1.22.2
 
