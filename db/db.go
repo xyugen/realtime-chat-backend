@@ -1,16 +1,20 @@
 package db
 
 import (
-	"database/sql"
 	"log"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-func NewMySQLiteStorage(databaseUrl string, authToken string) (*sql.DB, error) {
-	url := "libsql://" + databaseUrl + "?authToken=" + authToken
+func NewMySQLiteStorage(databaseUrl string, authToken string) (*gorm.DB, error) {
+	dsn := databaseUrl + "?authToken=" + authToken
 
-	db, err := sql.Open("libsql", url)
+	db, err := gorm.Open(sqlite.New(sqlite.Config{
+		DriverName: "libsql",
+		DSN:        dsn,
+	}), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}

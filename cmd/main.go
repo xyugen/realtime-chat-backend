@@ -1,12 +1,12 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 
 	"github.com/xyugen/realtime-chat-backend/cmd/api"
 	"github.com/xyugen/realtime-chat-backend/config"
 	"github.com/xyugen/realtime-chat-backend/db"
+	"gorm.io/gorm"
 )
 
 // func corsMiddleware(next http.Handler) http.Handler {
@@ -34,11 +34,6 @@ func main() {
 	}
 }
 
-func initStorage(db *sql.DB) {
-	err := db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("DB: Successfully connected!")
+func initStorage(_ *gorm.DB) {
+	log.Println("Database initialized")
 }
