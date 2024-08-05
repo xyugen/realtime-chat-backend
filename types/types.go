@@ -17,7 +17,13 @@ type User struct {
 	Password string `json:"-"`
 }
 
+// Payloads (separated for scale reasons)
 type RegisterUserPayload struct {
+	Username string `json:"username" validate:"required,min=4"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
+type LoginUserPayload struct {
 	Username string `json:"username" validate:"required,min=4"`
 	Password string `json:"password" validate:"required,min=6"`
 }
