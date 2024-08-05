@@ -6,6 +6,7 @@ import (
 
 type UserStore interface {
 	CreateUser(user User) error
+	GetUserByID(id int) (*User, error)
 	GetUserByUsername(username string) (*User, error)
 }
 

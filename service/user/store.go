@@ -22,6 +22,16 @@ func (s *Store) CreateUser(user types.User) error {
 	return nil
 }
 
+func (s *Store) GetUserByID(id int) (*types.User, error) {
+	var user types.User
+	result := s.db.Where("id = ?", id).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
 func (s *Store) GetUserByUsername(username string) (*types.User, error) {
 	var user types.User
 	result := s.db.Where("username = ?", username).First(&user)
