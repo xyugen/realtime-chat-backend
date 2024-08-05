@@ -9,6 +9,7 @@ import (
 type Config struct {
 	TursoDatabaseUrl string
 	TursoAuthToken   string
+	Port             string
 }
 
 var Envs = InitConfig()
@@ -19,6 +20,7 @@ func InitConfig() Config {
 	return Config{
 		TursoDatabaseUrl: getEnv("TURSO_DATABASE_URL", ""),
 		TursoAuthToken:   getEnv("TURSO_AUTH_TOKEN", ""),
+		Port:             getEnv("PORT", "8080"),
 	}
 }
 

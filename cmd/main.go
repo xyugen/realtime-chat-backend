@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/xyugen/realtime-chat-backend/cmd/api"
@@ -28,7 +29,7 @@ func main() {
 
 	initStorage(db)
 
-	server := api.NewAPIServer(":8080", nil)
+	server := api.NewAPIServer(fmt.Sprintf(":%s", config.Envs.Port), db)
 	if err := server.Run(); err != nil {
 		log.Fatal(err)
 	}

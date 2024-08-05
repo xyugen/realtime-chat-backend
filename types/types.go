@@ -1,12 +1,19 @@
 package types
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
+
+type UserStore interface {
+	CreateUser(user User) error
+	GetUserByUsername(username string) (*User, error)
+}
 
 type User struct {
-	ID        int       `json:"id"`
-	Username  string    `json:"username"`
-	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"createdAt"`
+	gorm.Model
+	ID       int    `json:"id" gorm:"primaryKey"`
+	Username string `json:"username"`
+	Password string `json:"-"`
 }
 
 type RegisterUserPayload struct {
