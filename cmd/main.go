@@ -7,19 +7,9 @@ import (
 	"github.com/xyugen/realtime-chat-backend/cmd/api"
 	"github.com/xyugen/realtime-chat-backend/config"
 	"github.com/xyugen/realtime-chat-backend/db"
+	"github.com/xyugen/realtime-chat-backend/types"
 	"gorm.io/gorm"
 )
-
-// func corsMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-// 		if r.Method == "OPTIONS" {
-// 			return
-// 		}
-// 		next.ServeHTTP(w, r)
-// 	})
-// }
 
 func main() {
 	db, err := db.NewMySQLiteStorage(config.Envs.TursoDatabaseUrl, config.Envs.TursoAuthToken)
@@ -35,6 +25,10 @@ func main() {
 	}
 }
 
-func initStorage(_ *gorm.DB) {
+func initStorage(db *gorm.DB) {
+	err := db.AutoMigrate(&types.User{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Println("Database initialized")
 }
