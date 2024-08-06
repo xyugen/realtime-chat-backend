@@ -41,3 +41,13 @@ func (s *Store) GetConversationByUserIds(user1Id int, user2Id int) (*types.Conve
 
 	return &conversation, nil
 }
+
+func (s *Store) GetConversationById(conversationId int) (*types.Conversation, error) {
+	var conversation types.Conversation
+	result := s.db.Where("id = ?", conversationId).First(&conversation)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &conversation, nil
+}

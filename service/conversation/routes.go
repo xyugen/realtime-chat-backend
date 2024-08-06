@@ -3,6 +3,7 @@ package conversation
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -23,6 +24,26 @@ func NewHandler(store types.ConversationStore, userStore types.UserStore) *Handl
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/conversations", auth.WithJWTAuth(h.handleGetConversations, h.userStore)).Methods("GET")
 	router.HandleFunc("/conversation/new", auth.WithJWTAuth(h.handleCreateConversation, h.userStore)).Methods("POST")
+
+	router.HandleFunc("/conversation/{id}", auth.WithJWTAuth(h.handleGetConversation, h.userStore)).Methods("GET")
+}
+
+func (h *Handler) handleGetConversation(w http.ResponseWriter, r *http.Request) {
+	conversationId := mux.Vars(r)["id"]
+
+	conversationIdInt, err := strconv.Atoi(conversationId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid conversation id"))
+		return
+	}
+
+	conversation, err := h.store.GetConversationById(conversationIdInt)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, conversation)
 }
 
 func (h *Handler) handleCreateConversation(w http.ResponseWriter, r *http.Request) {

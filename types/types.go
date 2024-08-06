@@ -31,6 +31,7 @@ type ConversationStore interface {
 	CreateConversation(conversation Conversation) error
 	GetConversationsByUserId(userId int) ([]Conversation, error)
 	GetConversationByUserIds(user1Id int, user2Id int) (*Conversation, error)
+	GetConversationById(conversationId int) (*Conversation, error)
 }
 
 type Conversation struct {
