@@ -22,7 +22,7 @@ func TestUserServiceHandlers(t *testing.T) {
 		}
 		marshalled, _ := json.Marshal(payload)
 
-		req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(marshalled))
+		req, err := http.NewRequest("POST", "/auth/register", bytes.NewBuffer(marshalled))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -30,7 +30,7 @@ func TestUserServiceHandlers(t *testing.T) {
 		rr := httptest.NewRecorder()
 		router := mux.NewRouter()
 
-		router.HandleFunc("/register", handler.handleRegister)
+		router.HandleFunc("/auth/register", handler.handleRegister)
 		router.ServeHTTP(rr, req)
 
 		if rr.Code != http.StatusBadRequest {

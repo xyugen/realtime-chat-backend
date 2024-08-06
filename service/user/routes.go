@@ -21,8 +21,8 @@ func NewHandler(store types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/login", h.handleLogin).Methods("POST")
-	router.HandleFunc("/register", h.handleRegister).Methods("POST")
+	router.HandleFunc("/auth/login", h.handleLogin).Methods("POST")
+	router.HandleFunc("/auth/register", h.handleRegister).Methods("POST")
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -42,12 +42,12 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	u, err := h.store.GetUserByUsername(user.Username)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 
 	if !auth.ComparePasswords(u.Password, []byte(user.Password)) {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 
