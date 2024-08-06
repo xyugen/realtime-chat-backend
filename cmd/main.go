@@ -26,7 +26,7 @@ func main() {
 }
 
 func initStorage(db *gorm.DB) {
-	err := db.AutoMigrate(&types.User{})
+	err := db.AutoMigrate(&types.User{}, &types.Conversation{})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -21,7 +21,7 @@ func NewHandler(store types.ConversationStore, userStore types.UserStore) *Handl
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	// router.HandleFunc("/conversation", h.handleCreateConversation).Methods("POST")
+	router.HandleFunc("/conversations", auth.WithJWTAuth(h.handleGetConversations, h.userStore)).Methods("GET")
 	router.HandleFunc("/conversation/new", auth.WithJWTAuth(h.handleCreateConversation, h.userStore)).Methods("POST")
 }
 
@@ -73,7 +73,9 @@ func (h *Handler) handleCreateConversation(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *Handler) handleGetConversations(w http.ResponseWriter, r *http.Request) {
-	c, err := h.store.GetConversationsByUserId(1)
+	userID := auth.GetUserIDFromContext(r.Context())
+
+	c, err := h.store.GetConversationsByUserId(userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

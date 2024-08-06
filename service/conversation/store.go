@@ -22,14 +22,14 @@ func (s *Store) CreateConversation(conversation types.Conversation) error {
 	return nil
 }
 
-func (s *Store) GetConversationsByUserId(userId int) (*types.Conversation, error) {
-	var conversation types.Conversation
-	result := s.db.Where("user1_id = ? OR user2_id = ?", userId, userId).Find(&conversation)
+func (s *Store) GetConversationsByUserId(userId int) ([]types.Conversation, error) {
+	var conversations []types.Conversation
+	result := s.db.Where("user1_id = ? OR user2_id = ?", userId, userId).Find(&conversations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &conversation, nil
+	return conversations, nil
 }
 
 func (s *Store) GetConversationByUserIds(user1Id int, user2Id int) (*types.Conversation, error) {

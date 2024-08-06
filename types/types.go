@@ -21,14 +21,16 @@ type User struct {
 // Conversation
 type ConversationStore interface {
 	CreateConversation(conversation Conversation) error
-	GetConversationsByUserId(userId int) (*Conversation, error)
+	GetConversationsByUserId(userId int) ([]Conversation, error)
 	GetConversationByUserIds(user1Id int, user2Id int) (*Conversation, error)
 }
 
 type Conversation struct {
 	gorm.Model
-	User1ID int `json:"user1_id"`
-	User2ID int `json:"user2_id"`
+	User1ID int   `json:"user1_id" gorm:"index:idx_user1_user2,not null"`
+	User1   *User `json:"user1" gorm:"foreignKey:User1ID"`
+	User2ID int   `json:"user2_id" gorm:"index:idx_user1_user2,not null"`
+	User2   *User `json:"user2" gorm:"foreignKey:User2ID"`
 }
 
 // Payloads (separated for scale reasons)
