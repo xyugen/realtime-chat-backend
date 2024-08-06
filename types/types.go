@@ -1,8 +1,17 @@
 package types
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
+
+type Base struct {
+	ID        int            `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `json:"deletedAt"`
+}
 
 // User
 type UserStore interface {
@@ -12,10 +21,9 @@ type UserStore interface {
 }
 
 type User struct {
-	gorm.Model
-	ID       int    `json:"id" gorm:"primaryKey"`
-	Username string `json:"username"`
-	Password string `json:"-"`
+	Base
+	Username string `json:"username" gorm:"unique;not null"`
+	Password string `json:"-" gorm:"not null"`
 }
 
 // Conversation
@@ -26,11 +34,9 @@ type ConversationStore interface {
 }
 
 type Conversation struct {
-	gorm.Model
-	User1ID int   `json:"user1_id" gorm:"index:idx_user1_user2,not null"`
-	User1   *User `json:"user1" gorm:"foreignKey:User1ID"`
-	User2ID int   `json:"user2_id" gorm:"index:idx_user1_user2,not null"`
-	User2   *User `json:"user2" gorm:"foreignKey:User2ID"`
+	Base
+	User1ID int `json:"user1Id" gorm:"index:idx_user1_user2"`
+	User2ID int `json:"user2Id" gorm:"index:idx_user1_user2"`
 }
 
 // Payloads (separated for scale reasons)
