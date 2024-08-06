@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/xyugen/realtime-chat-backend/service/conversation"
 	"github.com/xyugen/realtime-chat-backend/service/user"
 	"gorm.io/gorm"
 )
@@ -28,6 +29,10 @@ func (s *APIServer) Run() error {
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
+
+	conversationStore := conversation.NewStore(s.db)
+	conversationHandler := conversation.NewHandler(conversationStore, userStore)
+	conversationHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
