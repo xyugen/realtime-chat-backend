@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -23,6 +24,30 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/auth/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/auth/register", h.handleRegister).Methods("POST")
+
+	router.HandleFunc("/user/{id}", h.handleGetUser).Methods("GET")
+}
+
+func (h *Handler) handleGetUser(w http.ResponseWriter, r *http.Request) {
+	userId := mux.Vars(r)["id"]
+	if userId == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid user id"))
+		return
+	}
+
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid user id"))
+		return
+	}
+
+	u, err := h.store.GetUserByID(userIdInt)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, u)
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
