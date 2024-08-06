@@ -43,6 +43,5 @@ type LoginUserPayload struct {
 }
 
 type CreateConversationPayload struct {
-	User1ID int `json:"user1Id" validate:"required,nefield=User2ID"`
 	User2ID int `json:"user2Id" validate:"required"`
 }
