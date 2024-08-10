@@ -22,13 +22,24 @@ func (s *Store) CreateConversation(conversation types.Conversation) error {
 	return nil
 }
 
-func (s *Store) GetConversationsByUserId(userId int) ([]types.Conversation, error) {
+func (s *Store) GetConversationsByUserId(userId int, username string) ([]types.Conversation, error) {
 	var conversations []types.Conversation
-	result := s.db.
-		Preload("User1").
-		Preload("User2").
-		Where("user1_id = ? OR user2_id = ?", userId, userId).
-		Find(&conversations)
+	var result *gorm.DB
+	if username == "" {
+		result = s.db.
+			Joins("User1").
+			Joins("User2").
+			Where("user1_id = ? OR user2_id = ?", userId, userId).
+			Find(&conversations)
+	} else {
+		usernamePattern := "%" + username + "%"
+		result = s.db.
+			Joins("User1").
+			Joins("User2").
+			Where("(user1_id = ? AND user2.username LIKE ?) OR (user2_id = ? AND user1.username LIKE ?)", userId, usernamePattern, userId, usernamePattern).
+			Find(&conversations)
+	}
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

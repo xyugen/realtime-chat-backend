@@ -95,8 +95,9 @@ func (h *Handler) handleCreateConversation(w http.ResponseWriter, r *http.Reques
 
 func (h *Handler) handleGetConversations(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetUserIDFromContext(r.Context())
+	username := r.URL.Query().Get("username")
 
-	c, err := h.store.GetConversationsByUserId(userID)
+	c, err := h.store.GetConversationsByUserId(userID, username)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
