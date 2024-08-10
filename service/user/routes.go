@@ -25,8 +25,9 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/auth/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/auth/register", h.handleRegister).Methods("POST")
 
-	router.HandleFunc("/user/{id}", h.handleGetUserById).Methods("GET")
+	router.HandleFunc("/user/search", h.handleSearchUser).Methods("GET")
 	router.HandleFunc("/user/u/{username}", h.handleGetUserByUsername).Methods("GET")
+	router.HandleFunc("/user/{id}", h.handleGetUserById).Methods("GET")
 }
 
 func (h *Handler) handleGetUserById(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +66,24 @@ func (h *Handler) handleGetUserByUsername(w http.ResponseWriter, r *http.Request
 	}
 
 	utils.WriteJSON(w, http.StatusOK, u)
+}
+
+func (h *Handler) handleSearchUser(w http.ResponseWriter, r *http.Request) {
+	// get query
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid query"))
+		return
+	}
+
+	// get users
+	users, err := h.store.SearchUser(query)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, users)
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {

@@ -41,3 +41,13 @@ func (s *Store) GetUserByUsername(username string) (*types.User, error) {
 
 	return &user, nil
 }
+
+func (s *Store) SearchUser(username string) ([]types.User, error) {
+	var users []types.User
+	result := s.db.Where("username LIKE ?", "%"+username+"%").Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return users, nil
+}

@@ -18,6 +18,7 @@ type UserStore interface {
 	CreateUser(user User) error
 	GetUserByID(id int) (*User, error)
 	GetUserByUsername(username string) (*User, error)
+	SearchUser(username string) ([]User, error)
 }
 
 type User struct {
