@@ -24,7 +24,11 @@ func (s *Store) CreateConversation(conversation types.Conversation) error {
 
 func (s *Store) GetConversationsByUserId(userId int) ([]types.Conversation, error) {
 	var conversations []types.Conversation
-	result := s.db.Where("user1_id = ? OR user2_id = ?", userId, userId).Find(&conversations)
+	result := s.db.
+		Preload("User1").
+		Preload("User2").
+		Where("user1_id = ? OR user2_id = ?", userId, userId).
+		Find(&conversations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -34,7 +38,11 @@ func (s *Store) GetConversationsByUserId(userId int) ([]types.Conversation, erro
 
 func (s *Store) GetConversationByUserIds(user1Id int, user2Id int) (*types.Conversation, error) {
 	var conversation types.Conversation
-	result := s.db.Where("user1_id = ? AND user2_id = ?", user1Id, user2Id).Or("user1_id = ? AND user2_id = ?", user2Id, user1Id).First(&conversation)
+	result := s.db.
+		Preload("User1").
+		Preload("User2").
+		Where("user1_id = ? AND user2_id = ?", user1Id, user2Id).Or("user1_id = ? AND user2_id = ?", user2Id, user1Id).
+		First(&conversation)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -44,7 +52,11 @@ func (s *Store) GetConversationByUserIds(user1Id int, user2Id int) (*types.Conve
 
 func (s *Store) GetConversationById(conversationId int) (*types.Conversation, error) {
 	var conversation types.Conversation
-	result := s.db.Where("id = ?", conversationId).First(&conversation)
+	result := s.db.
+		Preload("User1").
+		Preload("User2").
+		Where("id = ?", conversationId).
+		First(&conversation)
 	if result.Error != nil {
 		return nil, result.Error
 	}

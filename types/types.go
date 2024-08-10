@@ -37,8 +37,10 @@ type ConversationStore interface {
 
 type Conversation struct {
 	Base
-	User1ID int `json:"user1Id" gorm:"index:idx_user1_user2"`
-	User2ID int `json:"user2Id" gorm:"index:idx_user1_user2"`
+	User1ID int  `json:"user1Id" gorm:"index:idx_user1_user2"`
+	User1   User `json:"user1" gorm:"foreignKey:User1ID;references:ID"`
+	User2ID int  `json:"user2Id" gorm:"index:idx_user1_user2"`
+	User2   User `json:"user2" gorm:"foreignKey:User2ID;references:ID"`
 }
 
 // Payloads (separated for scale reasons)

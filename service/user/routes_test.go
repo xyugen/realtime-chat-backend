@@ -52,3 +52,7 @@ func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 func (m *mockUserStore) CreateUser(user types.User) error {
 	return nil
 }
+
+func (m *mockUserStore) SearchUser(username string) ([]types.User, error) {
+	return []types.User{}, nil
+}
