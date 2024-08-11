@@ -34,10 +34,17 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 func (h *Handler) handleGetConversation(w http.ResponseWriter, r *http.Request) {
 	conversationId := mux.Vars(r)["id"]
+	userId := auth.GetUserIDFromContext(r.Context())
 
 	conversationIdInt, err := strconv.Atoi(conversationId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid conversation id"))
+		return
+	}
+
+	// user must be part of convo
+	if _, err := h.store.GetConversationByIDAndUserID(conversationIdInt, userId); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user is not part of conversation"))
 		return
 	}
 
@@ -153,6 +160,12 @@ func (h *Handler) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	// check if convo exists
 	if _, err := h.store.GetConversationById(conversationIdInt); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("conversation with id %d does not exist", conversationIdInt))
+		return
+	}
+
+	// user must be part of convo
+	if _, err := h.store.GetConversationByIDAndUserID(conversationIdInt, userID); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user is not part of conversation"))
 		return
 	}
 

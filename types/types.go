@@ -32,6 +32,7 @@ type ConversationStore interface {
 	CreateConversation(conversation Conversation) error
 	GetConversationsByUserId(userId int, username string) ([]Conversation, error)
 	GetConversationByUserIds(user1Id int, user2Id int) (*Conversation, error)
+	GetConversationByIDAndUserID(conversationId int, userId int) ([]Conversation, error)
 	GetConversationById(conversationId int) (*Conversation, error)
 }
 

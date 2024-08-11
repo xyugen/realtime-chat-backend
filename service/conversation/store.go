@@ -61,6 +61,18 @@ func (s *Store) GetConversationByUserIds(user1Id int, user2Id int) (*types.Conve
 	return &conversation, nil
 }
 
+func (s *Store) GetConversationByIDAndUserID(conversationId int, userId int) ([]types.Conversation, error) {
+	var conversations []types.Conversation
+	result := s.db.
+		Where("id = ? AND (user1_id = ? OR user2_id = ?)", conversationId, userId, userId).
+		Find(&conversations)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return conversations, nil
+}
+
 func (s *Store) GetConversationById(conversationId int) (*types.Conversation, error) {
 	var conversation types.Conversation
 	result := s.db.
