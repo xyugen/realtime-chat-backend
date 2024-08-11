@@ -43,6 +43,20 @@ type Conversation struct {
 	User2   User `json:"user2" gorm:"foreignKey:User2ID;references:ID"`
 }
 
+// Message
+type MessageStore interface {
+	CreateMessage(message Message) error
+	// GetMessagesByConversationId(conversationId int) ([]Message, error)
+}
+
+type Message struct {
+	Base
+	ConversationID int    `json:"conversationId" gorm:"index,not null"`
+	Content        string `json:"content"`
+	SenderID       int    `json:"senderId" gorm:"index,not null"`
+	Sender         User   `json:"sender" gorm:"foreignKey:SenderID;references:ID"`
+}
+
 // Payloads (separated for scale reasons)
 type RegisterUserPayload struct {
 	Username string `json:"username" validate:"required,min=4"`
@@ -56,4 +70,10 @@ type LoginUserPayload struct {
 
 type CreateConversationPayload struct {
 	User2ID int `json:"user2Id" validate:"required"`
+}
+
+type CreateMessagePayload struct {
+	// ConversationId int    `json:"conversationId" validate:"required"`
+	Content string `json:"content" validate:"required"`
+	// SenderID       int    `json:"senderId" validate:"required"`
 }

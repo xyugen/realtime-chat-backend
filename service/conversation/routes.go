@@ -13,12 +13,13 @@ import (
 )
 
 type Handler struct {
-	store     types.ConversationStore
-	userStore types.UserStore
+	store        types.ConversationStore
+	userStore    types.UserStore
+	messageStore types.MessageStore
 }
 
-func NewHandler(store types.ConversationStore, userStore types.UserStore) *Handler {
-	return &Handler{store: store, userStore: userStore}
+func NewHandler(store types.ConversationStore, userStore types.UserStore, messageStore types.MessageStore) *Handler {
+	return &Handler{store: store, userStore: userStore, messageStore: messageStore}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -26,6 +27,9 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/conversation/new", auth.WithJWTAuth(h.handleCreateConversation, h.userStore)).Methods("POST")
 
 	router.HandleFunc("/conversation/{id}", auth.WithJWTAuth(h.handleGetConversation, h.userStore)).Methods("GET")
+
+	router.HandleFunc("/conversation/{id}/messages", auth.WithJWTAuth(h.handleGetMessages, h.userStore)).Methods("GET")
+	router.HandleFunc("/conversation/{id}/messages/new", auth.WithJWTAuth(h.handleCreateMessage, h.userStore)).Methods("POST")
 }
 
 func (h *Handler) handleGetConversation(w http.ResponseWriter, r *http.Request) {
@@ -104,4 +108,64 @@ func (h *Handler) handleGetConversations(w http.ResponseWriter, r *http.Request)
 	}
 
 	utils.WriteJSON(w, http.StatusOK, c)
+}
+
+func (h *Handler) handleGetMessages(w http.ResponseWriter, r *http.Request) {
+	conversationId := mux.Vars(r)["id"]
+	conversationIdInt, err := strconv.Atoi(conversationId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid conversation id"))
+		return
+	}
+
+	fmt.Println(conversationIdInt)
+}
+
+func (h *Handler) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetUserIDFromContext(r.Context())
+	conversationId := mux.Vars(r)["id"]
+	conversationIdInt, err := strconv.Atoi(conversationId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid conversation id"))
+		return
+	}
+
+	// get message payload
+	var message types.CreateMessagePayload
+	if err := utils.ParseJSON(r, &message); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload
+	if err := utils.Validate.Struct(message); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if user exists
+	if _, err := h.userStore.GetUserByID(userID); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with id %d does not exist", userID))
+		return
+	}
+
+	// check if convo exists
+	if _, err := h.store.GetConversationById(conversationIdInt); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("conversation with id %d does not exist", conversationIdInt))
+		return
+	}
+
+	// create new message
+	if err := h.messageStore.CreateMessage(types.Message{
+		ConversationID: conversationIdInt,
+		SenderID:       userID,
+		Content:        message.Content,
+	}); err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// return success
+	utils.WriteJSON(w, http.StatusOK, nil)
 }
