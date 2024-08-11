@@ -21,3 +21,16 @@ func (s *Store) CreateMessage(message types.Message) error {
 
 	return nil
 }
+
+func (s *Store) GetMessagesByConversationId(conversationId int) ([]types.Message, error) {
+	var messages []types.Message
+	result := s.db.
+		Preload("Sender").
+		Where("conversation_id = ?", conversationId).
+		Find(&messages)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return messages, nil
+}

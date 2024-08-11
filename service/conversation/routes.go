@@ -118,6 +118,7 @@ func (h *Handler) handleGetConversations(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *Handler) handleGetMessages(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetUserIDFromContext(r.Context())
 	conversationId := mux.Vars(r)["id"]
 	conversationIdInt, err := strconv.Atoi(conversationId)
 	if err != nil {
@@ -125,7 +126,19 @@ func (h *Handler) handleGetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(conversationIdInt)
+	// user must be part of convo
+	if _, err := h.store.GetConversationByIDAndUserID(conversationIdInt, userID); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user is not part of conversation"))
+		return
+	}
+
+	messages, err := h.messageStore.GetMessagesByConversationId(conversationIdInt)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, messages)
 }
 
 func (h *Handler) handleCreateMessage(w http.ResponseWriter, r *http.Request) {

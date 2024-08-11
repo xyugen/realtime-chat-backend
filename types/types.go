@@ -47,7 +47,7 @@ type Conversation struct {
 // Message
 type MessageStore interface {
 	CreateMessage(message Message) error
-	// GetMessagesByConversationId(conversationId int) ([]Message, error)
+	GetMessagesByConversationId(conversationId int) ([]Message, error)
 }
 
 type Message struct {
